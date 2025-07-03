@@ -17,3 +17,7 @@ output "job_role_name" {
 output "job_role_arn" {
   value = module.test.job_role_arn
 }
+
+output "output_path" {
+  value = aws_s3_object.output_prefix.key
+}

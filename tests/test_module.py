@@ -46,6 +46,8 @@ def test_module(
         application_id = tf_output["application_id"]["value"]
         exec_role_arn = tf_output["job_role_arn"]["value"]
         storage_bucket_name = tf_output["storage_bucket_name"]["value"]
+        output_path = tf_output["output_path"]["value"]
+
         client = get_client("emr-serverless", role_arn=test_role_arn, region=aws_region)
         response = client.start_job_run(
             applicationId=application_id,
@@ -53,7 +55,9 @@ def test_module(
             jobDriver={
                 "sparkSubmit": {
                     "entryPoint": f"s3://{storage_bucket_name}/scripts/wordcount.py",
-                    "entryPointArguments": [f"s3://{storage_bucket_name}/output"],
+                    "entryPointArguments": [
+                        f"s3://{storage_bucket_name}/{output_path}"
+                    ],
                     "sparkSubmitParameters": " ".join(
                         [
                             "--conf",

@@ -39,3 +39,9 @@ resource "aws_iam_role_policy_attachment" "job_role" {
   policy_arn = aws_iam_policy.job_permissions.arn
   role       = aws_iam_role.job_role.name
 }
+
+resource "aws_iam_role_policy_attachment" "extra" {
+  for_each   = var.extra_policy_arns
+  policy_arn = each.value
+  role       = aws_iam_role.job_role.name
+}

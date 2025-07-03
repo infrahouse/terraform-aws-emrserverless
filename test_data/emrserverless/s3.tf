@@ -57,6 +57,12 @@ resource "aws_s3_object" "wordcount" {
 
 resource "aws_s3_object" "output_prefix" {
   bucket  = aws_s3_bucket.storage.bucket
-  key     = "output/" # ← this creates the folder
+  key     = "emr-serverless-spark/output/" # ← this creates the folder
+  content = ""
+}
+
+resource "aws_s3_object" "logs_prefix" {
+  bucket  = aws_s3_bucket.storage.bucket
+  key     = "emr-serverless-spark/logs/" # ← this creates the folder
   content = ""
 }
