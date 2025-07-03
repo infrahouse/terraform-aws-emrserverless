@@ -10,6 +10,10 @@ output "application_id" {
   value = aws_emrserverless_application.emr_application.id
 }
 
+output "application_arn" {
+  value = aws_emrserverless_application.emr_application.arn
+}
+
 output "job_role_name" {
   value = aws_iam_role.job_role.name
 }

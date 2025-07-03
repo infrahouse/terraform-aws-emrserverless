@@ -56,6 +56,7 @@ No modules.
 
 | Name | Description |
 |------|-------------|
+| <a name="output_application_arn"></a> [application\_arn](#output\_application\_arn) | n/a |
 | <a name="output_application_id"></a> [application\_id](#output\_application\_id) | n/a |
 | <a name="output_job_role_arn"></a> [job\_role\_arn](#output\_job\_role\_arn) | n/a |
 | <a name="output_job_role_name"></a> [job\_role\_name](#output\_job\_role\_name) | n/a |
