@@ -87,3 +87,24 @@ def test_module(
             if job_run_state in ["FAILED", "CANCELLING", "CANCELLED"]:
                 raise RuntimeError("Job didn't succeed")
             sleep(3)
+
+        # If not keeping resources after test, stop the application before Terraform destroy
+        if not keep_after:
+            LOG.info("Stopping EMR Serverless application %s before cleanup", application_id)
+            client.stop_application(applicationId=application_id)
+
+            # Wait for application to be fully stopped
+            app_state = None
+            while app_state != "STOPPED":
+                response = client.get_application(applicationId=application_id)
+                app_state = response["application"]["state"]
+                LOG.info("Application %s state: %s", application_id, app_state)
+                if app_state in ["STOPPING"]:
+                    LOG.info("Application is stopping, waiting...")
+                    sleep(5)
+                elif app_state == "STOPPED":
+                    LOG.info("Application successfully stopped")
+                    break
+                else:
+                    LOG.warning("Unexpected application state: %s", app_state)
+                    sleep(5)
