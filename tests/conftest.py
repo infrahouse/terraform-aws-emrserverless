@@ -13,3 +13,16 @@ LOG = logging.getLogger(__name__)
 
 
 setup_logging(LOG, debug=True)
+
+
+# Pytest hooks
+# More details on
+# https://pytest-with-eric.com/hooks/pytest-hooks/#Test-Running-runtest-Hooks
+def pytest_runtest_logstart(nodeid, location):
+    """Log when a test starts."""
+    LOG.info(f"TEST STARTED: {nodeid}")
+
+
+def pytest_runtest_logfinish(nodeid, location):
+    """Log when a test finishes."""
+    LOG.info(f"TEST ENDED: {nodeid}")
