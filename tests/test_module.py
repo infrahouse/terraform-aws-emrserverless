@@ -1,9 +1,11 @@
 import json
-from os import path as osp
+from os import path as osp, remove
 from pprint import pprint
+from shutil import rmtree
 from textwrap import dedent
 from time import sleep
 
+import pytest
 from infrahouse_core.aws import get_client
 from pytest_infrahouse import terraform_apply
 
@@ -13,13 +15,30 @@ from tests.conftest import (
 )
 
 
+@pytest.mark.parametrize(
+    "aws_provider_version", ["~> 5.62", "~> 6.0"], ids=["aws-5", "aws-6"]
+)
 def test_module(
     test_role_arn,
-    keep_after,
     aws_region,
+    aws_provider_version,
 ):
 
     terraform_module_dir = osp.join(TERRAFORM_ROOT_DIR, "emrserverless")
+    state_files = [
+        osp.join(terraform_module_dir, ".terraform"),
+        osp.join(terraform_module_dir, ".terraform.lock.hcl"),
+    ]
+
+    for state_file in state_files:
+        try:
+            if osp.isdir(state_file):
+                rmtree(state_file)
+            elif osp.isfile(state_file):
+                remove(state_file)
+        except FileNotFoundError:
+            pass
+
     with open(osp.join(terraform_module_dir, "terraform.tfvars"), "w") as fp:
         fp.write(
             dedent(
@@ -37,9 +56,26 @@ def test_module(
                 )
             )
 
+    with open(osp.join(terraform_module_dir, "terraform.tf"), "w") as fp:
+        fp.write(
+            dedent(
+                f"""
+                terraform {{
+                  required_version = "~> 1.5"
+                  //noinspection HILUnresolvedReference
+                  required_providers {{
+                    aws = {{
+                      source  = "hashicorp/aws"
+                      version = "{aws_provider_version}"
+                    }}
+                  }}
+                }}
+                """
+            )
+        )
+
     with terraform_apply(
         terraform_module_dir,
-        destroy_after=not keep_after,
         json_output=True,
     ) as tf_output:
         LOG.info("%s", json.dumps(tf_output, indent=4))
@@ -88,23 +124,23 @@ def test_module(
                 raise RuntimeError("Job didn't succeed")
             sleep(3)
 
-        # If not keeping resources after test, stop the application before Terraform destroy
-        if not keep_after:
-            LOG.info("Stopping EMR Serverless application %s before cleanup", application_id)
-            client.stop_application(applicationId=application_id)
+        LOG.info(
+            "Stopping EMR Serverless application %s before cleanup", application_id
+        )
+        client.stop_application(applicationId=application_id)
 
-            # Wait for application to be fully stopped
-            app_state = None
-            while app_state != "STOPPED":
-                response = client.get_application(applicationId=application_id)
-                app_state = response["application"]["state"]
-                LOG.info("Application %s state: %s", application_id, app_state)
-                if app_state in ["STOPPING"]:
-                    LOG.info("Application is stopping, waiting...")
-                    sleep(5)
-                elif app_state == "STOPPED":
-                    LOG.info("Application successfully stopped")
-                    break
-                else:
-                    LOG.warning("Unexpected application state: %s", app_state)
-                    sleep(5)
+        # Wait for application to be fully stopped
+        app_state = None
+        while app_state != "STOPPED":
+            response = client.get_application(applicationId=application_id)
+            app_state = response["application"]["state"]
+            LOG.info("Application %s state: %s", application_id, app_state)
+            if app_state in ["STOPPING"]:
+                LOG.info("Application is stopping, waiting...")
+                sleep(5)
+            elif app_state == "STOPPED":
+                LOG.info("Application successfully stopped")
+                break
+            else:
+                LOG.warning("Unexpected application state: %s", app_state)
+                sleep(5)
