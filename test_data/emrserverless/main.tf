@@ -5,4 +5,5 @@ module "test" {
   extra_policy_arns = {
     elasticmapreduce : aws_iam_policy.job_exec_role_permissions.arn
   }
+  enable_scheduler_configuration = var.enable_scheduler_configuration
 }

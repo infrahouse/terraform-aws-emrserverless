@@ -39,11 +39,16 @@ def test_module(
         except FileNotFoundError:
             pass
 
+    # Determine if scheduler_configuration is supported based on provider version
+    # For AWS provider 5.x, disable scheduler_configuration
+    enable_scheduler = "true" if aws_provider_version.startswith("~> 6") else "false"
+
     with open(osp.join(terraform_module_dir, "terraform.tfvars"), "w") as fp:
         fp.write(
             dedent(
                 f"""
                     region              = "{aws_region}"
+                    enable_scheduler_configuration = {enable_scheduler}
                     """
             )
         )

@@ -49,7 +49,10 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_application_name"></a> [application\_name](#input\_application\_name) | Name of application | `string` | n/a | yes |
+| <a name="input_enable_scheduler_configuration"></a> [enable\_scheduler\_configuration](#input\_enable\_scheduler\_configuration) | Enable scheduler configuration (supported in AWS provider 6.x+) | `bool` | `true` | no |
 | <a name="input_extra_policy_arns"></a> [extra\_policy\_arns](#input\_extra\_policy\_arns) | Map of IAM policy ARNs to attach to the job execution role | `map(string)` | `{}` | no |
+| <a name="input_max_concurrent_runs"></a> [max\_concurrent\_runs](#input\_max\_concurrent\_runs) | Maximum number of concurrent runs (scheduler\_configuration - AWS provider 6.x+) | `number` | `15` | no |
+| <a name="input_queue_timeout_minutes"></a> [queue\_timeout\_minutes](#input\_queue\_timeout\_minutes) | Queue timeout in minutes (scheduler\_configuration - AWS provider 6.x+) | `number` | `360` | no |
 | <a name="input_storage_bucket_name"></a> [storage\_bucket\_name](#input\_storage\_bucket\_name) | Name of storage bucket | `string` | n/a | yes |
 
 ## Outputs

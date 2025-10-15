@@ -9,30 +9,15 @@ resource "aws_emrserverless_application" "emr_application" {
     local.default_module_tags,
   )
 
-  # maximum_capacity {
-  #   cpu    = var.application_max_cores
-  #   memory = var.application_max_memory
-  # }
-  #
-  # initial_capacity {
-  #   initial_capacity_type = "Driver"
-  #
-  #   dynamic "initial_capacity_config" {
-  #     for_each = var.initial_worker_count == null ? [] : [1]
-  #
-  #     content {
-  #       worker_count = var.initial_worker_count
-  #
-  #       dynamic "worker_configuration" {
-  #         for_each = [1] #?
-  #
-  #         content {
-  #           cpu    = var.initial_worker_cpu
-  #           memory = var.initial_worker_memory
-  #         }
-  #       }
-  #     }
-  #   }
+  dynamic "scheduler_configuration" {
+    for_each = var.enable_scheduler_configuration ? [1] : []
+
+    content {
+      max_concurrent_runs   = var.max_concurrent_runs
+      queue_timeout_minutes = var.queue_timeout_minutes
+    }
+  }
+
 }
 
 
